@@ -5,14 +5,13 @@ FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 
-# SỬA LỖI TIMEOUT: Ép apt-get chỉ sử dụng kết nối IPv4
+# Ép apt-get chỉ sử dụng kết nối IPv4 (Vẫn giữ để đảm bảo kết nối mạng)
 RUN echo 'Acquire::ForceIPv4 "true";' > /etc/apt/apt.conf.d/99force-ipv4
 
-# Cài đặt PPA deadsnakes và các tool cần thiết
-RUN apt-get update && apt-get install -y \
-    software-properties-common \
-    curl \
-    && add-apt-repository ppa:deadsnakes/ppa -y \
+# FIX LỖI 504: Cài đặt PPA deadsnakes THỦ CÔNG (bỏ qua add-apt-repository)
+RUN apt-get update && apt-get install -y curl gpg ca-certificates \
+    && curl -fsSL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xF23C5A6CF475977595C89F51BA6932366A755776" | gpg --dearmor -o /usr/share/keyrings/deadsnakes.gpg \
+    && echo "deb [signed-by=/usr/share/keyrings/deadsnakes.gpg] https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu jammy main" > /etc/apt/sources.list.d/deadsnakes.list \
     && apt-get update
 
 # Cài đặt toàn bộ các phiên bản Python từ 3.7 đến 3.14
