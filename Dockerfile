@@ -5,6 +5,9 @@ FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 
+# SỬA LỖI TIMEOUT: Ép apt-get chỉ sử dụng kết nối IPv4
+RUN echo 'Acquire::ForceIPv4 "true";' > /etc/apt/apt.conf.d/99force-ipv4
+
 # Cài đặt PPA deadsnakes và các tool cần thiết
 RUN apt-get update && apt-get install -y \
     software-properties-common \
@@ -13,7 +16,6 @@ RUN apt-get update && apt-get install -y \
     && apt-get update
 
 # Cài đặt toàn bộ các phiên bản Python từ 3.7 đến 3.14
-# Dùng bản 3.11 làm bản chính (cài kèm pip và dev tools)
 RUN apt-get install -y \
     python3.7 \
     python3.8 \
@@ -28,7 +30,7 @@ RUN apt-get install -y \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-# Thiết lập Python 3.11 làm bản mặc định cho hệ thống (để chạy FastAPI)
+# Thiết lập Python 3.11 làm bản mặc định cho hệ thống
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 \
     && update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
 
